@@ -1,4 +1,5 @@
 const graphql = require('graphql');
+const axios = require('axios')
 const _ = require('lodash')
 const {
   GraphQLObjectType,
@@ -12,11 +13,6 @@ const users = [
   {id: '47', firstName: 'Duo', lastName:'Lipa', age: 34},
 ]
 
-const players = [
-  {jerseyNo: '75', name: 'Shakib Al Hasan', runs: 6592},
-  {jerseyNo: '02', name: 'Tamim Iqbal', runs: 7815},
-]
-
 const UserType = new GraphQLObjectType({
   name: 'User',
   fields: {
@@ -27,12 +23,29 @@ const UserType = new GraphQLObjectType({
   }
 })
 
+const CountryType = new GraphQLObjectType({
+  name: 'Country',
+  fields: {
+    id: { type: GraphQLString },
+    name: { type: GraphQLString},
+    description: { type: GraphQLInt}
+  }
+})
+
 const PlayerType = new GraphQLObjectType({
   name: 'Player',
   fields: {
+    // We dont need resolve for name, runs because graphql auto match the key with the key of json data
+    // If it doesnt match then we have to do resolve. Example Country . There is no props named country in the JSON data
     jerseyNo: { type: GraphQLString },
     name: { type: GraphQLString},
-    runs: { type: GraphQLInt}
+    runs: { type: GraphQLInt},
+    country: {
+      type: CountryType,
+      resolve(parentValue, args) {
+        return axios.get(`http://localhost:3000/countries/${parentValue.countryId}`)
+      }
+    }
   }
 })
 
@@ -48,11 +61,22 @@ const RootQuery = new GraphQLObjectType({
     },
     player: {
       type: PlayerType,
-      // args: { jerseyNo: { type: GraphQLString } },
+      args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
-        return players;
+        return axios
+          .get(`http://localhost:3000/players/${args.id}`)
+          .then(res => res.data)
       }
     },
+    country: {
+      type: CountryType,
+      args: { id: { type: GraphQLString } },
+      resolve(parentValue, args) {
+        return axios
+          .get(`http://localhost:3000/countries/${args.id}`)
+          .then(res => res.data)
+      }
+    }
   }
 })
 
