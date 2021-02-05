@@ -4,49 +4,47 @@ const _ = require('lodash')
 const {
   GraphQLObjectType,
   GraphQLSchema,
+  GraphQLList,
   GraphQLString,
   GraphQLInt,
 } = graphql
 
-const users = [
-  {id: '23', firstName: 'Bill', lastName:'Alex', age: 20},
-  {id: '47', firstName: 'Duo', lastName:'Lipa', age: 34},
-]
+
+const CompanyType = new GraphQLObjectType({
+  name: 'Company',
+  fields: () => ({
+    id: { type: GraphQLString },
+    name: { type: GraphQLString},
+    description: { type: GraphQLString},
+    user: {
+      type: new GraphQLList(UserType),
+      resolve(parentValue, args){
+        return axios
+          .get(`http://localhost:3000/companies/${parentValue.id}/users`)
+          .then(res => {
+            return res.data
+          })
+      }
+    }
+  })
+})
 
 const UserType = new GraphQLObjectType({
   name: 'User',
-  fields: {
+  fields: () => ({
     id: { type: GraphQLString },
     firstName: { type: GraphQLString},
-    lastName: { type: GraphQLString},
-    age: { type: GraphQLInt}
-  }
-})
-
-const CountryType = new GraphQLObjectType({
-  name: 'Country',
-  fields: {
-    id: { type: GraphQLString },
-    name: { type: GraphQLString},
-    description: { type: GraphQLInt}
-  }
-})
-
-const PlayerType = new GraphQLObjectType({
-  name: 'Player',
-  fields: {
-    // We dont need resolve for name, runs because graphql auto match the key with the key of json data
-    // If it doesnt match then we have to do resolve. Example Country . There is no props named country in the JSON data
-    jerseyNo: { type: GraphQLString },
-    name: { type: GraphQLString},
-    runs: { type: GraphQLInt},
-    country: {
-      type: CountryType,
+    age: { type: GraphQLInt},
+    company: {
+      type: CompanyType,
       resolve(parentValue, args) {
-        return axios.get(`http://localhost:3000/countries/${parentValue.countryId}`)
+        console.log(parentValue.companyId)
+        return axios
+            .get(`http://localhost:3000/companies/${parentValue.companyId}`)
+            .then(resp => resp.data)
       }
     }
-  }
+  })
 })
 
 const RootQuery = new GraphQLObjectType({
@@ -56,24 +54,17 @@ const RootQuery = new GraphQLObjectType({
       type: UserType,
       args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
-        return _.find(users, { id: args.id })
-      }
-    },
-    player: {
-      type: PlayerType,
-      args: { id: { type: GraphQLString } },
-      resolve(parentValue, args) {
         return axios
-          .get(`http://localhost:3000/players/${args.id}`)
+          .get(`http://localhost:3000/users/${args.id}`)
           .then(res => res.data)
       }
     },
-    country: {
-      type: CountryType,
+    company: {
+      type: CompanyType,
       args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
         return axios
-          .get(`http://localhost:3000/countries/${args.id}`)
+          .get(`http://localhost:3000/companies/${args.id}`)
           .then(res => res.data)
       }
     }

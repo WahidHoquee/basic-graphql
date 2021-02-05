@@ -1,28 +1,25 @@
 {
-  "players": [
+  "users": [
     {
-      "id": "01",
-      "jerseyNo": "75",
-      "firstName": "Shakib Al Hasan",
-      "runs": 6592,
-      "countryId": "2"
+      "id": "40",
+      "firstName": "Alex",
+      "age": 40,
+      "companyId": "2"
     },
-    { 
-      "id": "02", 
-      "jerseyNo": "02", 
-      "firstName": "Tamim Iqbal", 
-      "runs": 7815,
-      "countryId": "2"
+    {
+      "id": "41",
+      "firstName": "Nick",
+      "age": 40,
+      "companyId": "2"
     },
-    { 
-      "id": "02", 
-      "jerseyNo": "02", 
-      "firstName": "Tamim Iqbal", 
-      "runs": 7815,
-      "countryId": "1"
+    {
+      "firstName": "Samantha",
+      "age": 25,
+      "companyId": "1",
+      "id": "S1TKHzuwl"
     }
   ],
-  "countries": [
+  "companies": [
     {
       "id": "1",
       "name": "Apple",
